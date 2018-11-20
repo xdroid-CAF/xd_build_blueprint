@@ -561,7 +561,7 @@ func buildGoTest(ctx blueprint.ModuleContext, testRoot, testPkgArchive,
 		Optional: true,
 	})
 
-	var linkDeps []string
+	linkDeps := []string{testPkgArchive}
 	libDirFlags := []string{"-L " + testRoot}
 	testDeps := []string{}
 	ctx.VisitDepsDepthFirstIf(isGoPackageProducer,
@@ -649,6 +649,9 @@ func (s *singleton) GenerateBuildActions(ctx blueprint.SingletonContext) {
 	}
 	if s.config.moduleListFile != "" {
 		extraSharedFlagArray = append(extraSharedFlagArray, "-l", s.config.moduleListFile)
+	}
+	if s.config.emptyNinjaFile {
+		extraSharedFlagArray = append(extraSharedFlagArray, "--empty-ninja-file")
 	}
 	extraSharedFlagString := strings.Join(extraSharedFlagArray, " ")
 
