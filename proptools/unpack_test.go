@@ -16,7 +16,6 @@ package proptools
 
 import (
 	"bytes"
-	"fmt"
 	"reflect"
 	"testing"
 	"text/scanner"
@@ -38,7 +37,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				S     *string
 				Blank *string
 				Unset *string
@@ -57,7 +56,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				S string
 			}{
 				S: "abc",
@@ -72,7 +71,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				IsGood bool
 			}{
 				IsGood: true,
@@ -88,7 +87,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				IsGood *bool
 				IsBad  *bool
 				IsUgly *bool
@@ -109,7 +108,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Stuff     []string
 				Empty     []string
 				Nil       []string
@@ -132,7 +131,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Nested struct {
 					S string
 				}
@@ -153,7 +152,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Nested interface{}
 			}{
 				Nested: &struct{ S string }{
@@ -174,7 +173,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Nested struct {
 					Foo string
 				}
@@ -201,7 +200,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Nested struct {
 					Foo string `allowNested:"true"`
 				} `blueprint:"filter(allowNested:\"true\")"`
@@ -219,39 +218,6 @@ var validUnpackTestCases = []struct {
 		},
 	},
 
-	{
-		input: `
-			m {
-				nested: {
-					foo: "abc",
-				},
-				bar: false,
-				baz: ["def", "ghi"],
-			}
-		`,
-		output: []interface{}{
-			struct {
-				Nested struct {
-					Foo string
-				} `blueprint:"filter(allowNested:\"true\")"`
-				Bar bool
-				Baz []string
-			}{
-				Nested: struct{ Foo string }{
-					Foo: "",
-				},
-				Bar: false,
-				Baz: []string{"def", "ghi"},
-			},
-		},
-		errs: []error{
-			&UnpackError{
-				Err: fmt.Errorf("filtered field nested.foo cannot be set in a Blueprint file"),
-				Pos: mkpos(30, 4, 9),
-			},
-		},
-	},
-
 	// Anonymous struct
 	{
 		input: `
@@ -263,7 +229,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				EmbeddedStruct
 				Nested struct {
 					EmbeddedStruct
@@ -294,7 +260,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				EmbeddedInterface
 				Nested struct {
 					EmbeddedInterface
@@ -325,7 +291,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				S string
 				EmbeddedStruct
 				Nested struct {
@@ -361,7 +327,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				S string
 				EmbeddedInterface
 				Nested struct {
@@ -399,7 +365,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				S     string
 				List  []string
 				List2 []string
@@ -421,7 +387,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Nested struct {
 					S string
 				}
@@ -430,7 +396,7 @@ var validUnpackTestCases = []struct {
 					S: "abc",
 				},
 			},
-			struct {
+			&struct {
 				Nested struct {
 					S string
 				}
@@ -439,7 +405,7 @@ var validUnpackTestCases = []struct {
 					S: "abc",
 				},
 			},
-			struct {
+			&struct {
 			}{},
 		},
 	},
@@ -454,7 +420,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Nested *struct {
 					S string
 				}
@@ -483,7 +449,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				Nested interface{}
 			}{
 				Nested: &EmbeddedStruct{
@@ -512,7 +478,7 @@ var validUnpackTestCases = []struct {
 			}
 		`,
 		output: []interface{}{
-			struct {
+			&struct {
 				String     string
 				String_ptr *string
 				Bool       bool
@@ -592,7 +558,7 @@ func TestUnpackProperties(t *testing.T) {
 			}
 
 			for i := range output {
-				got := reflect.ValueOf(output[i]).Elem().Interface()
+				got := reflect.ValueOf(output[i]).Interface()
 				if !reflect.DeepEqual(got, testCase.output[i]) {
 					t.Errorf("test case: %s", testCase.input)
 					t.Errorf("incorrect output:")
