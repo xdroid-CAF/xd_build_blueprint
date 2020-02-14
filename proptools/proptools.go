@@ -42,6 +42,8 @@ func PropertyNameForField(fieldName string) string {
 	return propertyName
 }
 
+// FieldNameForProperty converts the name of a property that might appear in a Blueprints file to
+// the name of a field in property struct by uppercasing the first rune.
 func FieldNameForProperty(propertyName string) string {
 	r, size := utf8.DecodeRuneInString(propertyName)
 	fieldName := string(unicode.ToUpper(r))
